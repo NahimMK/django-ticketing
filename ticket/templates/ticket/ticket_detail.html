@@ -1,0 +1,60 @@
+{% extends "ticket/base.html" %}
+{% block content %}
+	<article class="media content-section">
+		<img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}">
+		<div class="media-body">
+		    <div class="article-metadata">
+		    	<a class="mr-2" href="{% url 'user-tickets' object.author.username %}">{{ object.author }}</a>
+		      	<small class="text-muted">{{ object.date_ticketed|date:"F d, Y g:i A" }}</small>
+		      	{% if object.author == user or user.is_staff %}
+			      	<div>
+			      		<a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'ticket-update' object.id %}">Update</a>
+			      		<a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'ticket-delete' object.id %}">Delete</a>
+			      	</div>
+		      	{% endif %}
+		    </div>
+		   	<h2><a class="article-title" href="{% url 'ticket-detail' ticket.id %}">{{ object.title }}  </a>
+		   		{% if object.status == 'N' %}
+		   			<span class="badge badge-warning">NEW</span>
+		   		{% elif object.status == 'O' %}
+		   			<span class="badge badge-info">{{ OPEN }}</span>
+		   		{% elif object.status == 'W' %}
+		   			<span class="badge badge-success">{{ WORKING }}</span>	
+		 		{% elif object.status == 'C' %}
+		   			<span class="badge badge-danger">{{ CLOSED }}</span>
+		   		{% endif %}
+			</h2>
+			<h5>
+		   		<span class="badge badge-secondary">Urgency: {{ object.urgency }}</span> 
+		   		<span class="badge badge-secondary">Type: {{ object.ticket_type }}</span>
+		   	</h5>
+		    <p class="article-content">{{ object.content }}</p>
+		</div>
+	</article>
+
+	<div class="replie-thread">
+	<h5>Replies...</h5>
+	{% if not object.replies.all %}
+		<p>No Replies Yet... </p>
+	{% else %}
+		{% for replie in object.replies.all %}
+			<div class="replie">
+				<div class="replie-heading">
+			      	<small>{{ replie.replier }}</small>
+			      	<small class="text-muted">{{ replie.date_replied|date:"F d, Y g:i A" }}</small>
+			    </div>
+			    <div class="replie-body">
+			    	<p class="article-content">{{ replie.body }}</p>
+				</div>
+			</div>
+		{% endfor %}
+	{% endif %}
+	{% if user.is_authenticated %}
+      	<a href="{% url 'add-replie' ticket.id %}">Add Reply</a>
+    {% else %}
+        <a href="{% url 'login' %}">Login Here to Reply</a>
+        <a href="{% url 'register' %}">Register</a>
+    {% endif %}  
+</div>
+
+{% endblock content %}
